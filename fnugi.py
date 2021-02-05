@@ -9,7 +9,7 @@ extension_rate = np.random.normal(loc=50, scale=15, size=50)
 
 moisture_tolerance = np.random.normal(loc=50, scale=20, size=50)
 decomposition_rate = np.random.normal(loc=15, scale=5, size=50)
-
+np.set_printoptions(precision=2)
 print(temperature_low, temperature_high, width_low, width_high)
 
 print(moisture_tolerance)
