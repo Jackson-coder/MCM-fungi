@@ -3,9 +3,6 @@ import matplotlib.pyplot as plt
 import math
 
 
-# 实际增长率
-
-
 class fnugis:
     def __init__(self, extension_max_g, Tmax, Tmin, T_real, Wmax, Wmin, W_real, weight_b, weight_c, number, Neq, moisture_tolerance, decomposition_rate):
         self.extension_max_g = extension_max_g
@@ -22,7 +19,11 @@ class fnugis:
         self.moisture_tolerance = moisture_tolerance
         self.decomposition_rate = decomposition_rate
         self.t = 0
-        self.a = math.log(Neq/number-1)
+        self.a = 0
+        self.number_log = []
+        self.dnumber_log = []
+
+
 
     def extension_real(self):
         Tmid = (self.Tmin+self.Tmax)/2
@@ -46,7 +47,6 @@ def update_real_number(fnugis, m2):
     N = 0
     Q = 0
     d_num = 0
-    numi = 0
 
     extension_gi = []
     total_gi = 0
@@ -56,59 +56,34 @@ def update_real_number(fnugis, m2):
         total_gi += gi
 
     for i in range(len(fnugis)):
-        print('!',extension_gi[i] / total_gi)
-        fnugis[i].Neq = m2 * 50 #* extension_gi[i] / total_gi
+
+        if fnugis[i].Neq == 800000:
+            fnugis[i].Neq = m2 * 50 * extension_gi[i] / total_gi
+            fnugis[i].a = math.log(fnugis[i].Neq/fnugis[i].number-1)
+        else:
+            fnugis[i].Neq = m2 * 50 * extension_gi[i] / total_gi
+        
         # self.number *= (1 - (self.number-self.Neq) * extension_gi)
         fnugis[i].number = fnugis[i].Neq / \
             (1 + math.exp(fnugis[i].a - extension_gi[i] * fnugis[i].t))
         # print("self.number:", self.number, extension_gi)
         fnugis[i].t = fnugis[i].t + 1
+        # d_number = fnugis[i].Neq*extension_gi[i] * fnugis[i].number * (1 - fnugis[i].number/fnugis[i].Neq)
         d_number = fnugis[i].Neq*extension_gi[i] * \
             math.exp(fnugis[i].a-extension_gi[i] * fnugis[i].t) / \
             (1+math.exp(fnugis[i].a-extension_gi[i] * fnugis[i].t))**2
-
+        
         N += fnugis[i].number
         Q += fnugis[i].moisture_tolerance*fnugis[i].decomposition_rate*fnugis[i].number
         d_num += d_number
-        numi = fnugis[i].number
+        fnugis[i].number_log.append(fnugis[i].number)
+        fnugis[i].dnumber_log.append(d_number)
 
     d_num /= len(fnugis)
     Q = Q/1000000
     m2 = m2 * (1 - Q)
+    # print('!',m2)
 
-    return N, Q, m2, d_num, numi
+    return N, Q, m2, d_num
 # 总菌数
 
-
-# def update_real_total_number(fnugis, m2, K):
-#     N = 0
-#     Q = 0
-#     d_num = 0
-#     numi = 0
-#     g = []
-
-#     for fnugi in fnugis:
-#         d_number, gi, number_i = fnugi.update_real_number(m2)
-#         N += number_i
-#         Q += fnugi.moisture_tolerance*fnugi.decomposition_rate*number_i
-#         d_num += d_number
-#         numi = number_i
-
-#         g.append(gi)
-
-#     d_num /= len(fnugis)
-#     Q = Q/1000000
-#     m2 = m2 * (1 - Q)
-
-#     # g_total = sum(g)
-
-#     # for i in range(len(fnugis)):
-#     #     fnugis[i].Neq = m2 * gamma * g[i] / g_total
-
-#     # plt.subplot(1,2,1)
-#     # plt.plot(extension_rate)
-#     # plt.subplot(1,2,2)
-#     # plt.plot(decomposition)
-#     # plt.show()
-
-#     return N, Q, m2, K, d_num, numi
