@@ -23,8 +23,6 @@ class fnugis:
         self.number_log = []
         self.dnumber_log = []
 
-
-
     def extension_real(self):
         Tmid = (self.Tmin+self.Tmax)/2
         Wmid = (self.Wmin+self.Wmax)/2
@@ -40,10 +38,11 @@ class fnugis:
             (self.weight_b*(1-delta_T) +
              self.weight_c*(1-delta_W))
 
+        # print(self.weight_b*(1-delta_T), self.weight_c*(1-delta_W), extension_gi)
         return extension_gi
 
 
-def update_real_number(fnugis, m2):
+def update_real_number(fnugis, m2, threshold):
     N = 0
     Q = 0
     d_num = 0
@@ -58,23 +57,26 @@ def update_real_number(fnugis, m2):
     for i in range(len(fnugis)):
 
         if fnugis[i].Neq == 800000:
-            fnugis[i].Neq = m2 * 50 * extension_gi[i] / total_gi
+            fnugis[i].Neq = m2 * extension_gi[i] / total_gi
             fnugis[i].a = math.log(fnugis[i].Neq/fnugis[i].number-1)
         else:
-            fnugis[i].Neq = m2 * 50 * extension_gi[i] / total_gi
-        
-        # self.number *= (1 - (self.number-self.Neq) * extension_gi)
+            fnugis[i].Neq = m2 * extension_gi[i] / total_gi
+
+        # fnugis[i].number = fnugis[i].Neq / \
+        #     (1 + math.exp(fnugis[i].a - extension_gi[i] * fnugis[i].t))
+
         fnugis[i].number = fnugis[i].Neq / \
             (1 + math.exp(fnugis[i].a - extension_gi[i] * fnugis[i].t))
-        # print("self.number:", self.number, extension_gi)
+
         fnugis[i].t = fnugis[i].t + 1
         # d_number = fnugis[i].Neq*extension_gi[i] * fnugis[i].number * (1 - fnugis[i].number/fnugis[i].Neq)
         d_number = fnugis[i].Neq*extension_gi[i] * \
             math.exp(fnugis[i].a-extension_gi[i] * fnugis[i].t) / \
             (1+math.exp(fnugis[i].a-extension_gi[i] * fnugis[i].t))**2
-        
+
         N += fnugis[i].number
-        Q += fnugis[i].moisture_tolerance*fnugis[i].decomposition_rate*fnugis[i].number
+        Q += fnugis[i].moisture_tolerance * \
+            fnugis[i].decomposition_rate*fnugis[i].number
         d_num += d_number
         fnugis[i].number_log.append(fnugis[i].number)
         fnugis[i].dnumber_log.append(d_number)
@@ -82,8 +84,12 @@ def update_real_number(fnugis, m2):
     d_num /= len(fnugis)
     Q = Q/1000000
     m2 = m2 * (1 - Q)
+
+    flag = 0
+    if m2 < threshold and threshold>50000:
+        flag = 1
+        threshold /= 2
     # print('!',m2)
 
-    return N, Q, m2, d_num
+    return N, Q, m2, d_num, flag, threshold
 # 总菌数
-
