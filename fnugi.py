@@ -21,14 +21,14 @@ def draw(extension_rate, number, fnus, decomposition, temperature, Humidity):
     plt.subplot(2, 3, 3)
     plt.xlabel('t/day')
     plt.ylabel('amount of fungi')
-    plt.title('The Amount of ALl Fungi Along With Time')
+    plt.title('The Amount of All Fungi Along With Time')
     for i in range(len(fnus)):
         plt.plot(fnus[i].number_log)
 
     plt.subplot(2, 3, 4)
     plt.xlabel('t/day')
     plt.ylabel('acceleration of fungi growth')
-    plt.title('The Acceleration of ALl fungi Along With Time')
+    plt.title('The Acceleration of All fungi Along With Time')
     for i in range(len(fnus)):
         plt.plot(fnus[i].dnumber_log)
 
@@ -54,13 +54,14 @@ def draw(extension_rate, number, fnus, decomposition, temperature, Humidity):
 
 
 def compare(record):
-    cities = ['Manaus', 'Los Angeles', 'Focus', 'Turpan', 'Seattle']
+    # cities = ['Manaus', 'Los Angeles', 'Focus', 'Turpan', 'Seattle']
+    cities = ['Seattle']
 
     plt.xlabel('t/day')
     plt.ylabel('decomposition')
     plt.title('The Decomposition Along With Time')
     l = []
-    for i in range(5):
+    for i in range(len(cities)):
         decomposition, litter, record_x, record_y = record[i]
         L, = plt.plot(decomposition)
         l.append(L,)
@@ -71,7 +72,7 @@ def compare(record):
     plt.ylabel('the left of the woody fibers')
     plt.title('The Woody Fibers Left Along With Time')
     l = []
-    for i in range(5):
+    for i in range(len(cities)):
         decomposition, litter, record_x, record_y = record[i]
         L, = plt.plot(litter)
         l.append(L,)
@@ -89,7 +90,9 @@ def record_experment_data(fs, fnus):
     m2 = 800000
     threshold = 400000
 
-    temperature, Humidity = dataset.import_data(fs)
+    # temperature, Humidity = dataset.import_data(fs)
+    temperature = np.random.normal(loc=0, scale=2, size=len(fnus))
+    Humidity = np.random.normal(loc=0.5, scale=0.1, size=len(fnus))
 
     number = []
     decomposition = []
@@ -100,9 +103,9 @@ def record_experment_data(fs, fnus):
     record_y = []
     # training
     for i in range(5000):
-        for j in range(50):
-            fnus[j].T_real = temperature[i]
-            fnus[j].W_real = Humidity[i]
+        for j in range(len(fnus)):
+            fnus[j].T_real = temperature[j]
+            fnus[j].W_real = Humidity[j]
 
         total_number, total_decomposition_rate, m2, d_number, flag, threshold = Q1.update_real_number(
             fnus, m2, threshold)
@@ -120,50 +123,52 @@ def record_experment_data(fs, fnus):
 
 
 # 参数设计
+size = 70
 np.set_printoptions(precision=2)
-temperature_low = np.random.normal(loc=0, scale=10, size=50)
-temperature_high = np.random.normal(loc=20, scale=10, size=50)
-for i in range(50):
+temperature_low = np.random.normal(loc=0, scale=10, size=size)
+temperature_high = np.random.normal(loc=20, scale=10, size=size)
+for i in range(size):
     if temperature_high[i] < 0:
         temperature_high[i] = 3
 temperature_high = temperature_low + temperature_high
 
 temperature = (temperature_high + temperature_low) / 2
 
-width_low = np.random.normal(loc=4, scale=2, size=50) / 10
-for i in range(50):
+width_low = np.random.normal(loc=4, scale=2, size=size) / 10
+for i in range(size):
     if width_low[i] < 0:
         width_low[i] = 1e-07
 
-width_high = np.random.normal(loc=10, scale=4, size=50) / 10
-for i in range(50):
+width_high = np.random.normal(loc=10, scale=4, size=size) / 10
+for i in range(size):
     if temperature_high[i] < 0:
         temperature_high[i] = 0.5
 width_high = width_high + width_low
 
 width = (width_high + width_low) / 2
 
-extension_rate = np.random.normal(loc=50, scale=15, size=50)/100
-moisture_tolerance = np.random.normal(loc=50, scale=15, size=50)
-decomposition_rate = np.random.normal(loc=15, scale=5, size=50)/100
+extension_rate = np.random.normal(loc=50, scale=15, size=size)/100
+moisture_tolerance = np.random.normal(loc=50, scale=15, size=size)
+decomposition_rate = np.random.normal(loc=15, scale=5, size=size)/100
 
 # 定义竞争因子
-competition_a = np.random.normal(loc=50, scale=15, size=50)/100
+competition_a = np.random.normal(loc=50, scale=15, size=size)/100
 
 # 定义共生因子
 flag = 0
-symbiosis_b = np.zeros(50)
-symbiosis_index = np.zeros(50)
+symbiosis_b = np.zeros(size)
+symbiosis_index = np.zeros(size)
 
 # 定义寄生因子
 f_flag = 0
-parasitic_c = np.zeros(50)
-parasitic_index = np.zeros(50)
+parasitic_c = np.zeros(size)
+parasitic_index = np.zeros(size)
+be_parasitic_index = np.zeros(size)
 
 
-for i in range(50):
-    for j in range(50):
-        if i != j and i!=0 and j!=0 and abs(temperature[i]-temperature[j]) < 5 and abs(width[i] - width[j]) < 0.4:
+for i in range(size):
+    for j in range(size):
+        if i != j and i != 0 and j != 0 and abs(temperature[i]-temperature[j]) < 5 and abs(width[i] - width[j]) < 0.4:
             flag += 1
             symbiosis_b[i] = 0.2
             symbiosis_index[i] = j
@@ -175,19 +180,19 @@ for i in range(50):
         break
 
 
-for i in range(25):
-    for j in range(25):
-        if i != j and abs(temperature[25+i]-temperature[25+j]) < 5 and abs(width[25+i] - width[25+j]) < 0.4:
+for i in range(int(size/2)):
+    for j in range(int(size/2)):
+        if i != j and abs(temperature[int(size/2)+i]-temperature[int(size/2)+j]) < 5 and abs(width[int(size/2)+i] - width[int(size/2)+j]) < 0.4:
             f_flag += 1
-            parasitic_c[25+i] = 1
-            parasitic_index[25+i] = 25+j
-            parasitic_index[25+j] = i
+            parasitic_c[int(size/2)+i] = 0.1
+            parasitic_index[int(size/2)+i] = int(size/2)+j
+            be_parasitic_index[int(size/2)+j] = int(size/2)+i
             break
     if f_flag == 1:
         break
 
 
-for i in range(50):
+for i in range(size):
     if extension_rate[i] <= 0:
         extension_rate[i] = 0.01
     if moisture_tolerance[i] <= 0:
@@ -207,7 +212,7 @@ width_now = 0.25
 # number_now = np.around(number_now)
 
 number_now = []
-for i in range(50):
+for i in range(size):
     number_now.append(np.random.randint(5, 15))
 
 print("temperature_low", temperature_low)
@@ -221,16 +226,17 @@ print("number_now", number_now)
 
 F = []
 K = 800000
-for i in range(50):
+for i in range(size):
     fnu = Q1.fungis(extension_rate[i], temperature_high[i],
                     temperature_low[i], temperature_now,
                     width_high[i], width_low[i], width_now, 0.00035, 0.015,
-                    number_now[i], K, moisture_tolerance[i], decomposition_rate[i], competition_a[i], symbiosis_b[i], symbiosis_index[i],parasitic_c[i],parasitic_index[i])
+                    number_now[i], K, moisture_tolerance[i], decomposition_rate[i], competition_a[i], symbiosis_b[i], symbiosis_index[i], parasitic_c[i], parasitic_index[i], be_parasitic_index[i])
     F.append(fnu)
 
-file_csv = ['Manaus.csv', 'Los Angeles.csv',
-            'Focus.csv', 'Turpan.csv', 'Seattle.csv']
+# file_csv = ['Manaus.csv', 'Los Angeles.csv',
+#             'Focus.csv', 'Turpan.csv', 'Seattle.csv']
 
+file_csv = ['Seattle.csv']
 
 litter_record = []
 for csv in file_csv:

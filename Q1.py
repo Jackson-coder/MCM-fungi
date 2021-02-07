@@ -2,9 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
-
 class fungis:
-    def __init__(self, extension_max_g, Tmax, Tmin, T_real, Wmax, Wmin, W_real, weight_b, weight_c, number, Neq, moisture_tolerance, decomposition_rate, competition, symbiosis_b, symbiosis_index,parasitic_c,parasitic_index):
+    def __init__(self, extension_max_g, Tmax, Tmin, T_real, Wmax, Wmin, W_real, weight_b, weight_c, number, Neq, moisture_tolerance, decomposition_rate, competition, symbiosis_b, symbiosis_index,parasitic_c,parasitic_index,be_parasitic_index):
         self.extension_max_g = extension_max_g
         self.Tmax = Tmax
         self.Tmin = Tmin
@@ -27,6 +26,7 @@ class fungis:
         self.symbiosis_index = symbiosis_index
         self.parasitic_c=parasitic_c
         self.parasitic_index=parasitic_index
+        self.be_parasitic_index=be_parasitic_index
 
     def extension_real(self):
         Tmid = (self.Tmin+self.Tmax)/2
@@ -79,30 +79,30 @@ def update_real_number(fungis, m2, threshold):
             fungis[i].Neq = m2  # * extension_gi[i] / total_gi
 
         sigma = 0
-        for z in range(50):
+        for z in range(len(fungis)):
             if z != i:
                 sigma += fungis[z].competition / \
                     fungis[i].competition*fungis[z].number
 
         # 普通模式
-        fungis[i].number = fungis[i].Neq / \
-            (1 + math.exp(fungis[i].a - extension_gi[i] * fungis[i].t))
-
-        if fungis[i].number < 0:
-            fungis[i].number = 0
-
-        d_number = fungis[i].Neq*extension_gi[i] * \
-        math.exp(fungis[i].a-extension_gi[i] * fungis[i].t) / \
-            (1+math.exp(fungis[i].a-extension_gi[i] * fungis[i].t))**2
-
-        # 竞争模式
-        # fungis[i].number = (fungis[i].Neq-sigma) / \
-        #     (1 + math.exp(fungis[i].a - (1-sigma/fungis[i].Neq)*extension_gi[i] * fungis[i].t)) #竞争模式
+        # fungis[i].number = fungis[i].Neq / \
+        #     (1 + math.exp(fungis[i].a - extension_gi[i] * fungis[i].t))
 
         # if fungis[i].number < 0:
         #     fungis[i].number = 0
 
-        # d_number = fungis[i].Neq*extension_gi[i] * (1-sigma/fungis[i].Neq)
+        # d_number = fungis[i].Neq*extension_gi[i] * \
+        # math.exp(fungis[i].a-extension_gi[i] * fungis[i].t) / \
+        #     (1+math.exp(fungis[i].a-extension_gi[i] * fungis[i].t))**2
+
+        # 竞争模式
+        fungis[i].number = (fungis[i].Neq-sigma) / \
+            (1 + math.exp(fungis[i].a - (1-sigma/fungis[i].Neq)*extension_gi[i] * fungis[i].t)) #竞争模式
+
+        if fungis[i].number < 0:
+            fungis[i].number = 0
+
+        d_number = extension_gi[i] * (1-sigma/fungis[i].Neq)*fungis[i].number
 
         #竞争模式 + 共生模式
         # gamma = 0
@@ -116,28 +116,38 @@ def update_real_number(fungis, m2, threshold):
         # if fungis[i].number < 0:
         #     fungis[i].number = 0
 
-        # d_number = fungis[i].Neq*extension_gi[i] * (1-sigma/fungis[i].Neq+gamma/fungis[i].Neq)
+        # d_number = extension_gi[i] * (1-sigma/fungis[i].Neq+gamma/fungis[i].Neq)*fungis[i].number
 
         #竞争模式 + 共生模式 + 寄生模式 
-        gamma = 0
-        if fungis[i].symbiosis_index != 0:
-            gamma = fungis[i].symbiosis_b*fungis[int(fungis[i].symbiosis_index)].number
+        # gamma = 0
+        # belta = 0
+        # alpha = 0
+        # d_number = 0
+        # if fungis[i].symbiosis_index != 0:
+        #     gamma = fungis[i].symbiosis_b*fungis[int(fungis[i].symbiosis_index)].number
+        # if fungis[i].parasitic_index != 0:
+        #     belta = 1
+        # if fungis[i].be_parasitic_index != 0:
+        #     alpha = 1
+            
         
-        fungis[i].number = (fungis[i].Neq-sigma+gamma) / \
-            (1 + math.exp(fungis[i].a - (1-sigma /
-                                         fungis[i].Neq+gamma)*extension_gi[i] * fungis[i].t))
+    
+        # if fungis[i].number < 0:
+        #     fungis[i].number = 0
 
-        if fungis[i].number < 0:
-            fungis[i].number = 0
-
-        d_number = fungis[i].Neq*extension_gi[i] * (1-sigma/fungis[i].Neq+gamma/fungis[i].Neq)
-
+        # if alpha == 1:
+        #     d_number = extension_gi[i] * (1-sigma/fungis[i].Neq-gamma/fungis[i].Neq)*fungis[i].number
+        #     fungis[i].number = (fungis[i].Neq-sigma-gamma) / (1 + math.exp(fungis[i].a - (1-sigma /fungis[i].Neq-gamma/fungis[i].Neq)*extension_gi[i] * fungis[i].t))
+        # if belta == 1:
+        #     fungis[i].number = fungis[i].Neq*(-fungis[i].parasitic_c/extension_gi[i]+gamma-sigma) / \
+        #     (1 + math.exp(fungis[i].a - (-fungis[i].parasitic_c+extension_gi[i]*(gamma-sigma))))
+        #     d_number = (-fungis[i].parasitic_c+extension_gi[i]*(gamma-sigma))*fungis[i].number
 
 
         fungis[i].t = fungis[i].t + 1
 
-        print(fungis[i].Neq, extension_gi[i],m2,
-              fungis[i].a, d_number, fungis[i].number)
+        # print(fungis[i].Neq, extension_gi[i],m2,
+        #       fungis[i].a, d_number, fungis[i].number)
         N += fungis[i].number
         Q += fungis[i].moisture_tolerance * \
             fungis[i].decomposition_rate*fungis[i].number
