@@ -30,15 +30,15 @@ class fnugis:
         delta_T = 2*abs(self.T_real-Tmid)/(self.Tmax-self.Tmin)
         delta_W = 2*abs(self.W_real-Wmid)/(self.Wmax-self.Wmin)
         if delta_T > 1:
-            delta_T = 1e-03
+            delta_T = 1-1e-03
         if delta_W > 1:
-            delta_W = 1e-03
+            delta_W = 1-1e-03
 
         extension_gi = self.extension_max_g * \
             (self.weight_b*(1-delta_T) +
-             self.weight_c*(1-delta_W))
+             self.weight_c*(np.log10(1+(1-delta_W))))
 
-        # print(self.weight_b*(1-delta_T), self.weight_c*(1-delta_W), extension_gi)
+        # print(self.Neq,self.extension_max_g,delta_T,self.Tmax-self.Tmin,(1-delta_T), (1-delta_W), extension_gi)
         return extension_gi
 
 
@@ -49,15 +49,25 @@ def update_real_number(fnugis, m2, threshold):
 
     extension_gi = []
     total_gi = 0
+    delta = 0
     for fnugi in fnugis:
         gi = fnugi.extension_real()
         extension_gi.append(gi)
         total_gi += gi
+        if delta > gi : 
+            delta = gi
+    if delta != 0:
+        delta -= 0.001
+    delta = 0
 
     for i in range(len(fnugis)):
 
         if fnugis[i].Neq == 800000:
-            fnugis[i].Neq = m2 * extension_gi[i] / total_gi
+            if fnugis[i].number-1 <= 0:
+                fnugis[i].number = 2
+            fnugis[i].Neq = m2 * (extension_gi[i] - delta) / (total_gi - delta * len(fnugis)) #+ 1000
+
+            print(m2, fnugis[i].Neq, delta, extension_gi[i] - delta,total_gi - delta * len(fnugis))
             fnugis[i].a = math.log(fnugis[i].Neq/fnugis[i].number-1)
         else:
             fnugis[i].Neq = m2 * extension_gi[i] / total_gi
@@ -74,6 +84,7 @@ def update_real_number(fnugis, m2, threshold):
             math.exp(fnugis[i].a-extension_gi[i] * fnugis[i].t) / \
             (1+math.exp(fnugis[i].a-extension_gi[i] * fnugis[i].t))**2
 
+        # print(fnugis[i].Neq,extension_gi[i],fnugis[i].a,d_number)
         N += fnugis[i].number
         Q += fnugis[i].moisture_tolerance * \
             fnugis[i].decomposition_rate*fnugis[i].number
@@ -83,12 +94,19 @@ def update_real_number(fnugis, m2, threshold):
 
     d_num /= len(fnugis)
     Q = Q/1000000
+    # print('m2, Q',m2, Q)
     m2 = m2 * (1 - Q)
+    
+    if m2 < 0:
+        print(m2, Q)
+        plt.plot()
+        plt.show()
 
     flag = 0
-    if m2 < threshold and threshold>50000:
+    if m2 < threshold and threshold > 50000:
         flag = 1
         threshold /= 2
+
     # print('!',m2)
 
     return N, Q, m2, d_num, flag, threshold
