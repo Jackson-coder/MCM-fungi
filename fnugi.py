@@ -54,7 +54,6 @@ def draw(extension_rate, number, fnus, decomposition, temperature, Humidity):
 
 
 def compare(record):
-    print(record)
     cities = ['Manaus', 'Los Angeles.csv', 'Focus.csv', 'Turpan.csv', 'Seattle.csv']
     
     plt.xlabel('t/h')
@@ -78,11 +77,12 @@ def compare(record):
         L, = plt.plot(litter[:1000])
         l.append(L,)
         plt.plot(record_x, record_y, 'x')
+        print(record_x)
     plt.legend(handles = l, labels = cities, loc = 'best')
     plt.show()
 
 
-    print(record_x)
+    
     return 
 
 
