@@ -30,10 +30,11 @@ class fnugis:
 
         delta_T = 2*abs(self.T_real-Tmid)/(self.Tmax-self.Tmin)
         delta_W = 2*abs(self.W_real-Wmid)/(self.Wmax-self.Wmin)
-        if delta_T > 1:
-            delta_T = 1-1e-03
-        if delta_W > 1:
-            delta_W = 1-1e-03
+        # if delta_T > 1:
+        #     delta_T = 1-1e-03
+        if delta_W > 1.5:
+            # delta_W = 1-1e-03
+            delta_W = 1.5
 
         extension_gi = self.extension_max_g * \
             (self.weight_b*(1-delta_T) +
@@ -78,23 +79,26 @@ def update_real_number(fnugis, m2, threshold):
         sigma = 0
         for z in range(50):
             if z!=i:
-                sigma += fnugis[z].competition/fnugis[i].competition
+                sigma += fnugis[z].competition/fnugis[i].competition*fnugis[z].number
 
-        fnugis[i].number = fnugis[i].Neq / \
-            (1 + math.exp(fnugis[i].a - extension_gi[i] * fnugis[i].t))  #普通模式
+        # fnugis[i].number = fnugis[i].Neq / \
+        #     (1 + math.exp(fnugis[i].a - extension_gi[i] * fnugis[i].t))  #普通模式
 
-        # fnugis[i].number = (fnugis[i].Neq-sigma) / \
-        #     (1 + math.exp(fnugis[i].a - (1-sigma/fnugis[i].Neq)*extension_gi[i] * fnugis[i].t))
+        fnugis[i].number = (fnugis[i].Neq-sigma) / \
+            (1 + math.exp(fnugis[i].a - (1-sigma/fnugis[i].Neq)*extension_gi[i] * fnugis[i].t))
 
-        d_number = fnugis[i].Neq*extension_gi[i] * \
-            math.exp(fnugis[i].a-extension_gi[i] * fnugis[i].t) / \
-            (1+math.exp(fnugis[i].a-extension_gi[i] * fnugis[i].t))**2
+        if fnugis[i].number < 0:
+            fnugis[i].number = 0
 
-        # d_number = fnugis[i].Neq*extension_gi[i] * (1-sigma/fnugis[i].Neq)
+        # d_number = fnugis[i].Neq*extension_gi[i] * \
+        #     math.exp(fnugis[i].a-extension_gi[i] * fnugis[i].t) / \
+        #     (1+math.exp(fnugis[i].a-extension_gi[i] * fnugis[i].t))**2
+
+        d_number = fnugis[i].Neq*extension_gi[i] * (1-sigma/fnugis[i].Neq)
 
         fnugis[i].t = fnugis[i].t + 1
 
-        # print(fnugis[i].Neq,extension_gi[i],fnugis[i].a,d_number)
+        print(fnugis[i].Neq,extension_gi[i],fnugis[i].a,d_number,fnugis[i].number)
         N += fnugis[i].number
         Q += fnugis[i].moisture_tolerance * \
             fnugis[i].decomposition_rate*fnugis[i].number
@@ -108,7 +112,7 @@ def update_real_number(fnugis, m2, threshold):
     m2 = m2 * (1 - Q)
 
     if m2 < 0:
-        # print(m2, Q)
+        print(m2, Q)
         plt.plot()
         plt.show()
 

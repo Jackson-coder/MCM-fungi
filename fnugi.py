@@ -54,7 +54,7 @@ def draw(extension_rate, number, fnus, decomposition, temperature, Humidity):
 
 
 def compare(record):
-    cities = ['Manaus', 'Los Angeles.csv', 'Focus.csv', 'Turpan.csv', 'Seattle.csv']
+    cities = ['Manaus', 'Los Angeles', 'Focus', 'Turpan', 'Seattle']
     
     plt.xlabel('t/day')
     plt.ylabel('decomposition')
@@ -100,7 +100,7 @@ def record_experment_data(fs, fnus):
     record_x = []
     record_y = []
     # training
-    for i in range(4500):
+    for i in range(5000):
         for j in range(50):
             fnus[j].T_real = temperature[i]
             fnus[j].W_real = Humidity[i]
