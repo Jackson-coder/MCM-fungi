@@ -4,7 +4,7 @@ import math
 
 
 class fungis:
-    def __init__(self, extension_max_g, Tmax, Tmin, T_real, Wmax, Wmin, W_real, weight_b, weight_c, number, Neq, moisture_tolerance, decomposition_rate, competition):
+    def __init__(self, extension_max_g, Tmax, Tmin, T_real, Wmax, Wmin, W_real, weight_b, weight_c, number, Neq, moisture_tolerance, decomposition_rate, competition, symbiosis_b, symbiosis_index,parasitic_c,parasitic_index):
         self.extension_max_g = extension_max_g
         self.Tmax = Tmax
         self.Tmin = Tmin
@@ -23,6 +23,10 @@ class fungis:
         self.number_log = []
         self.dnumber_log = []
         self.competition = competition
+        self.symbiosis_b = symbiosis_b
+        self.symbiosis_index = symbiosis_index
+        self.parasitic_c=parasitic_c
+        self.parasitic_index=parasitic_index
 
     def extension_real(self):
         Tmid = (self.Tmin+self.Tmax)/2
@@ -53,13 +57,11 @@ def update_real_number(fungis, m2, threshold):
     total_gi = 0
     total_number = 0
 
-
     for fungi in fungis:
         gi = fungi.extension_real()
         extension_gi.append(gi)
         total_gi += gi
         total_number += fungi.number
-
 
     for i in range(len(fungis)):
 
@@ -68,44 +70,74 @@ def update_real_number(fungis, m2, threshold):
         if fungis[i].Neq == 800000:
             if fungis[i].number-1 <= 0:
                 fungis[i].number = 2
-            fungis[i].Neq = m2 #* extension_gi[i] / total_gi  # + 1000
+            fungis[i].Neq = m2  # * extension_gi[i] / total_gi  # + 1000
 
             # print(m2, fungis[i].Neq, delta, extension_gi[i] -
             #       delta, total_gi - delta * len(fungis))
             fungis[i].a = math.log(fungis[i].Neq/fungis[i].number-1)
         else:
-            fungis[i].Neq = m2 #* extension_gi[i] / total_gi
+            fungis[i].Neq = m2  # * extension_gi[i] / total_gi
 
         sigma = 0
         for z in range(50):
-            if z!=i:
-                sigma += fungis[z].competition/fungis[i].competition*fungis[z].number
+            if z != i:
+                sigma += fungis[z].competition / \
+                    fungis[i].competition*fungis[z].number
 
-        #普通模式
-        # fungis[i].number = fungis[i].Neq / \
-        #     (1 + math.exp(fungis[i].a - extension_gi[i] * fungis[i].t))  
-
-        # if fungis[i].number < 0:
-        #     fungis[i].number = 0
-
-        #     d_number = fungis[i].Neq*extension_gi[i] * \
-        #     math.exp(fungis[i].a-extension_gi[i] * fungis[i].t) / \
-        #     (1+math.exp(fungis[i].a-extension_gi[i] * fungis[i].t))**2
-
-        #竞争模式
-        fungis[i].number = (fungis[i].Neq-sigma) / \
-            (1 + math.exp(fungis[i].a - (1-sigma/fungis[i].Neq)*extension_gi[i] * fungis[i].t)) #竞争模式
+        # 普通模式
+        fungis[i].number = fungis[i].Neq / \
+            (1 + math.exp(fungis[i].a - extension_gi[i] * fungis[i].t))
 
         if fungis[i].number < 0:
             fungis[i].number = 0
 
-        d_number = fungis[i].Neq*extension_gi[i] * (1-sigma/fungis[i].Neq)
+        d_number = fungis[i].Neq*extension_gi[i] * \
+        math.exp(fungis[i].a-extension_gi[i] * fungis[i].t) / \
+            (1+math.exp(fungis[i].a-extension_gi[i] * fungis[i].t))**2
+
+        # 竞争模式
+        # fungis[i].number = (fungis[i].Neq-sigma) / \
+        #     (1 + math.exp(fungis[i].a - (1-sigma/fungis[i].Neq)*extension_gi[i] * fungis[i].t)) #竞争模式
+
+        # if fungis[i].number < 0:
+        #     fungis[i].number = 0
+
+        # d_number = fungis[i].Neq*extension_gi[i] * (1-sigma/fungis[i].Neq)
+
+        #竞争模式 + 共生模式
+        # gamma = 0
+        # if fungis[i].symbiosis_index != 0:
+        #     gamma = fungis[i].symbiosis_b*fungis[int(fungis[i].symbiosis_index)].number
+        
+        # fungis[i].number = (fungis[i].Neq-sigma+gamma) / \
+        #     (1 + math.exp(fungis[i].a - (1-sigma /
+        #                                  fungis[i].Neq+gamma)*extension_gi[i] * fungis[i].t))
+
+        # if fungis[i].number < 0:
+        #     fungis[i].number = 0
+
+        # d_number = fungis[i].Neq*extension_gi[i] * (1-sigma/fungis[i].Neq+gamma/fungis[i].Neq)
+
+        #竞争模式 + 共生模式 + 寄生模式 
+        gamma = 0
+        if fungis[i].symbiosis_index != 0:
+            gamma = fungis[i].symbiosis_b*fungis[int(fungis[i].symbiosis_index)].number
+        
+        fungis[i].number = (fungis[i].Neq-sigma+gamma) / \
+            (1 + math.exp(fungis[i].a - (1-sigma /
+                                         fungis[i].Neq+gamma)*extension_gi[i] * fungis[i].t))
+
+        if fungis[i].number < 0:
+            fungis[i].number = 0
+
+        d_number = fungis[i].Neq*extension_gi[i] * (1-sigma/fungis[i].Neq+gamma/fungis[i].Neq)
 
 
 
         fungis[i].t = fungis[i].t + 1
 
-        print(fungis[i].Neq,extension_gi[i],fungis[i].a,d_number,fungis[i].number)
+        print(fungis[i].Neq, extension_gi[i],m2,
+              fungis[i].a, d_number, fungis[i].number)
         N += fungis[i].number
         Q += fungis[i].moisture_tolerance * \
             fungis[i].decomposition_rate*fungis[i].number

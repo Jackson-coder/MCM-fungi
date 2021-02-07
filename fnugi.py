@@ -55,7 +55,7 @@ def draw(extension_rate, number, fnus, decomposition, temperature, Humidity):
 
 def compare(record):
     cities = ['Manaus', 'Los Angeles', 'Focus', 'Turpan', 'Seattle']
-    
+
     plt.xlabel('t/day')
     plt.ylabel('decomposition')
     plt.title('The Decomposition Along With Time')
@@ -64,9 +64,8 @@ def compare(record):
         decomposition, litter, record_x, record_y = record[i]
         L, = plt.plot(decomposition)
         l.append(L,)
-    plt.legend(handles = l, labels = cities, loc = 'best')
+    plt.legend(handles=l, labels=cities, loc='best')
     plt.show()
-    
 
     plt.xlabel('t/day')
     plt.ylabel('the left of the woody fibers')
@@ -78,10 +77,10 @@ def compare(record):
         l.append(L,)
         plt.plot(record_x, record_y, 'x')
         print(record_x)
-    plt.legend(handles = l, labels = cities, loc = 'best')
+    plt.legend(handles=l, labels=cities, loc='best')
     plt.show()
 
-    return 
+    return
 
 
 def record_experment_data(fs, fnus):
@@ -123,29 +122,70 @@ def record_experment_data(fs, fnus):
 # 参数设计
 np.set_printoptions(precision=2)
 temperature_low = np.random.normal(loc=0, scale=10, size=50)
-temperature_high =  np.random.normal(loc=20, scale=10, size=50)
+temperature_high = np.random.normal(loc=20, scale=10, size=50)
 for i in range(50):
     if temperature_high[i] < 0:
         temperature_high[i] = 3
 temperature_high = temperature_low + temperature_high
+
+temperature = (temperature_high + temperature_low) / 2
 
 width_low = np.random.normal(loc=4, scale=2, size=50) / 10
 for i in range(50):
     if width_low[i] < 0:
         width_low[i] = 1e-07
 
-width_high = np.random.normal(loc=10, scale=4, size=50) / 10 
+width_high = np.random.normal(loc=10, scale=4, size=50) / 10
 for i in range(50):
     if temperature_high[i] < 0:
         temperature_high[i] = 0.5
 width_high = width_high + width_low
 
+width = (width_high + width_low) / 2
+
 extension_rate = np.random.normal(loc=50, scale=15, size=50)/100
 moisture_tolerance = np.random.normal(loc=50, scale=15, size=50)
 decomposition_rate = np.random.normal(loc=15, scale=5, size=50)/100
 
-#定义竞争因子
+# 定义竞争因子
 competition_a = np.random.normal(loc=50, scale=15, size=50)/100
+
+# 定义共生因子
+flag = 0
+symbiosis_b = np.zeros(50)
+symbiosis_index = np.zeros(50)
+
+# 定义寄生因子
+f_flag = 0
+parasitic_c = np.zeros(50)
+parasitic_index = np.zeros(50)
+
+
+for i in range(50):
+    for j in range(50):
+        if i != j and i!=0 and j!=0 and abs(temperature[i]-temperature[j]) < 5 and abs(width[i] - width[j]) < 0.4:
+            flag += 1
+            symbiosis_b[i] = 0.2
+            symbiosis_index[i] = j
+            symbiosis_b[j] = 0.1
+            symbiosis_index[j] = i
+            if flag == 2:
+                break
+    if flag == 2:
+        break
+
+
+for i in range(25):
+    for j in range(25):
+        if i != j and abs(temperature[25+i]-temperature[25+j]) < 5 and abs(width[25+i] - width[25+j]) < 0.4:
+            f_flag += 1
+            parasitic_c[25+i] = 1
+            parasitic_index[25+i] = 25+j
+            parasitic_index[25+j] = i
+            break
+    if f_flag == 1:
+        break
+
 
 for i in range(50):
     if extension_rate[i] <= 0:
@@ -153,9 +193,10 @@ for i in range(50):
     if moisture_tolerance[i] <= 0:
         moisture_tolerance[i] = 40
     if decomposition_rate[i] <= 0:
-        decomposition_rate[i] =0.10
+        decomposition_rate[i] = 0.10
     if competition_a[i] <= 0:
         competition_a[i] = 0.5
+
 
 # temperature_now = temperature[0]
 # width_now = Humidity[0]
@@ -184,10 +225,11 @@ for i in range(50):
     fnu = Q1.fungis(extension_rate[i], temperature_high[i],
                     temperature_low[i], temperature_now,
                     width_high[i], width_low[i], width_now, 0.00035, 0.015,
-                    number_now[i], K, moisture_tolerance[i], decomposition_rate[i],competition_a[i])
+                    number_now[i], K, moisture_tolerance[i], decomposition_rate[i], competition_a[i], symbiosis_b[i], symbiosis_index[i],parasitic_c[i],parasitic_index[i])
     F.append(fnu)
 
-file_csv = ['Manaus.csv', 'Los Angeles.csv', 'Focus.csv', 'Turpan.csv', 'Seattle.csv']
+file_csv = ['Manaus.csv', 'Los Angeles.csv',
+            'Focus.csv', 'Turpan.csv', 'Seattle.csv']
 
 
 litter_record = []
@@ -205,4 +247,3 @@ L1 = []
 L2 = []
 
 compare(litter_record)
-
