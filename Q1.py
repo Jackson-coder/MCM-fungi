@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import math
 
 
-class fnugis:
+class fungis:
     def __init__(self, extension_max_g, Tmax, Tmin, T_real, Wmax, Wmin, W_real, weight_b, weight_c, number, Neq, moisture_tolerance, decomposition_rate, competition):
         self.extension_max_g = extension_max_g
         self.Tmax = Tmax
@@ -44,7 +44,7 @@ class fnugis:
         return extension_gi
 
 
-def update_real_number(fnugis, m2, threshold):
+def update_real_number(fungis, m2, threshold):
     N = 0
     Q = 0
     d_num = 0
@@ -54,59 +54,66 @@ def update_real_number(fnugis, m2, threshold):
     total_number = 0
 
 
-    for fnugi in fnugis:
-        gi = fnugi.extension_real()
+    for fungi in fungis:
+        gi = fungi.extension_real()
         extension_gi.append(gi)
         total_gi += gi
-        total_number += fnugi.number
+        total_number += fungi.number
 
 
-    for i in range(len(fnugis)):
+    for i in range(len(fungis)):
 
-        # print(fnugis[i].number / total_number)
+        # print(fungis[i].number / total_number)
 
-        if fnugis[i].Neq == 800000:
-            if fnugis[i].number-1 <= 0:
-                fnugis[i].number = 2
-            fnugis[i].Neq = m2 #* extension_gi[i] / total_gi  # + 1000
+        if fungis[i].Neq == 800000:
+            if fungis[i].number-1 <= 0:
+                fungis[i].number = 2
+            fungis[i].Neq = m2 #* extension_gi[i] / total_gi  # + 1000
 
-            # print(m2, fnugis[i].Neq, delta, extension_gi[i] -
-            #       delta, total_gi - delta * len(fnugis))
-            fnugis[i].a = math.log(fnugis[i].Neq/fnugis[i].number-1)
+            # print(m2, fungis[i].Neq, delta, extension_gi[i] -
+            #       delta, total_gi - delta * len(fungis))
+            fungis[i].a = math.log(fungis[i].Neq/fungis[i].number-1)
         else:
-            fnugis[i].Neq = m2 #* extension_gi[i] / total_gi
+            fungis[i].Neq = m2 #* extension_gi[i] / total_gi
 
         sigma = 0
         for z in range(50):
             if z!=i:
-                sigma += fnugis[z].competition/fnugis[i].competition*fnugis[z].number
+                sigma += fungis[z].competition/fungis[i].competition*fungis[z].number
 
-        # fnugis[i].number = fnugis[i].Neq / \
-        #     (1 + math.exp(fnugis[i].a - extension_gi[i] * fnugis[i].t))  #普通模式
+        #普通模式
+        # fungis[i].number = fungis[i].Neq / \
+        #     (1 + math.exp(fungis[i].a - extension_gi[i] * fungis[i].t))  
 
-        fnugis[i].number = (fnugis[i].Neq-sigma) / \
-            (1 + math.exp(fnugis[i].a - (1-sigma/fnugis[i].Neq)*extension_gi[i] * fnugis[i].t))
+        # if fungis[i].number < 0:
+        #     fungis[i].number = 0
 
-        if fnugis[i].number < 0:
-            fnugis[i].number = 0
+        #     d_number = fungis[i].Neq*extension_gi[i] * \
+        #     math.exp(fungis[i].a-extension_gi[i] * fungis[i].t) / \
+        #     (1+math.exp(fungis[i].a-extension_gi[i] * fungis[i].t))**2
 
-        # d_number = fnugis[i].Neq*extension_gi[i] * \
-        #     math.exp(fnugis[i].a-extension_gi[i] * fnugis[i].t) / \
-        #     (1+math.exp(fnugis[i].a-extension_gi[i] * fnugis[i].t))**2
+        #竞争模式
+        fungis[i].number = (fungis[i].Neq-sigma) / \
+            (1 + math.exp(fungis[i].a - (1-sigma/fungis[i].Neq)*extension_gi[i] * fungis[i].t)) #竞争模式
 
-        d_number = fnugis[i].Neq*extension_gi[i] * (1-sigma/fnugis[i].Neq)
+        if fungis[i].number < 0:
+            fungis[i].number = 0
 
-        fnugis[i].t = fnugis[i].t + 1
+        d_number = fungis[i].Neq*extension_gi[i] * (1-sigma/fungis[i].Neq)
 
-        print(fnugis[i].Neq,extension_gi[i],fnugis[i].a,d_number,fnugis[i].number)
-        N += fnugis[i].number
-        Q += fnugis[i].moisture_tolerance * \
-            fnugis[i].decomposition_rate*fnugis[i].number
+
+
+        fungis[i].t = fungis[i].t + 1
+
+        print(fungis[i].Neq,extension_gi[i],fungis[i].a,d_number,fungis[i].number)
+        N += fungis[i].number
+        Q += fungis[i].moisture_tolerance * \
+            fungis[i].decomposition_rate*fungis[i].number
         d_num += d_number
-        fnugis[i].number_log.append(fnugis[i].number)
-        fnugis[i].dnumber_log.append(d_number)
+        fungis[i].number_log.append(fungis[i].number)
+        fungis[i].dnumber_log.append(d_number)
 
-    d_num /= len(fnugis)
+    d_num /= len(fungis)
     Q = Q/1000000
     # print('m2, Q',m2, Q)
     m2 = m2 * (1 - Q)

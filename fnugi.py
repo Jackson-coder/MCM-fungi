@@ -9,26 +9,26 @@ def draw(extension_rate, number, fnus, decomposition, temperature, Humidity):
     plt.subplot(2, 3, 1)
     plt.xlabel('t/day')
     plt.ylabel('extension rate')
-    plt.title('The Extension rate Along With Time')
+    plt.title('The Extension Rate Along With Time')
     plt.plot(extension_rate)
 
     plt.subplot(2, 3, 2)
     plt.xlabel('t/day')
-    plt.ylabel('amount of fnugis')
-    plt.title('The Amount of Whole Species of Fnugis Along With Time')
+    plt.ylabel('amount of fungi')
+    plt.title('The Amount of Whole Fungi Along With Time')
     plt.plot(number)
 
     plt.subplot(2, 3, 3)
     plt.xlabel('t/day')
-    plt.ylabel('amount of fnugi')
-    plt.title('The Amount of ALl Random Fnugis Along With Time')
+    plt.ylabel('amount of fungi')
+    plt.title('The Amount of ALl Fungi Along With Time')
     for i in range(len(fnus)):
         plt.plot(fnus[i].number_log)
 
     plt.subplot(2, 3, 4)
     plt.xlabel('t/day')
-    plt.ylabel('acceration of fnugi growth')
-    plt.title('The Acceration of ALl Random Fnugis Along With Time')
+    plt.ylabel('acceleration of fungi growth')
+    plt.title('The Acceleration of ALl fungi Along With Time')
     for i in range(len(fnus)):
         plt.plot(fnus[i].dnumber_log)
 
@@ -40,8 +40,8 @@ def draw(extension_rate, number, fnus, decomposition, temperature, Humidity):
 
     plt.subplot(2, 3, 6)
     plt.xlabel('t/day')
-    plt.ylabel('Degree of dryness')
-    plt.title('The Degree of dryness Along With Time')
+    plt.ylabel('drought index')
+    plt.title('The Drought Index Along With Time')
     plt.plot(Humidity[:2000])
     plt.show()
 
@@ -69,8 +69,8 @@ def compare(record):
     
 
     plt.xlabel('t/day')
-    plt.ylabel('the left of the litter')
-    plt.title('The Litter Left Along With Time')
+    plt.ylabel('the left of the woody fibers')
+    plt.title('The Woody Fibers Left Along With Time')
     l = []
     for i in range(5):
         decomposition, litter, record_x, record_y = record[i]
@@ -86,7 +86,7 @@ def compare(record):
 
 def record_experment_data(fs, fnus):
 
-    print(fnus[0].Neq)
+    # print(fnus[0].Neq)
     m2 = 800000
     threshold = 400000
 
@@ -181,7 +181,7 @@ print("number_now", number_now)
 F = []
 K = 800000
 for i in range(50):
-    fnu = Q1.fnugis(extension_rate[i], temperature_high[i],
+    fnu = Q1.fungis(extension_rate[i], temperature_high[i],
                     temperature_low[i], temperature_now,
                     width_high[i], width_low[i], width_now, 0.00035, 0.015,
                     number_now[i], K, moisture_tolerance[i], decomposition_rate[i],competition_a[i])
