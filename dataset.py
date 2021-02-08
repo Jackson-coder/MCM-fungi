@@ -12,8 +12,11 @@ def import_data(fs):
     temperature=[]
     Humidity=[]
     for i in range(len(lines)):
-        temperature.append(float(lines[i][10]))
-        Humidity.append(float(lines[i][6])/(float(lines[i][10])+10))
+        temperature.append((float(lines[i][4])+float(lines[i][5]))/2)
+        if float(lines[i][6])/((float(lines[i][4])+float(lines[i][5]))/2+10)<0:
+            Humidity.append(0)
+        else:
+            Humidity.append(float(lines[i][6])/((float(lines[i][4])+float(lines[i][5]))/2+10))
         
     
     return temperature,Humidity

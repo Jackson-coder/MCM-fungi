@@ -84,7 +84,7 @@ def update_real_number(fungis, m2, threshold):
                 sigma += fungis[z].competition / \
                     fungis[i].competition*fungis[z].number
         
-        sigma = 0
+        
 
         # 普通模式
         # fungis[i].number = fungis[i].Neq / \
@@ -104,16 +104,17 @@ def update_real_number(fungis, m2, threshold):
         # if fungis[i].number < 0:
         #     fungis[i].number = 0
 
-        # d_number = extension_gi[i] * (1-sigma/fungis[i].Neq)*fungis[i].number
+        # d_number = fungis[i].Neq * extension_gi[i] * (1-sigma/fungis[i].Neq)*fungis[i].number
 
         #竞争模式 + 共生模式
         gamma = 0
         if fungis[i].symbiosis_index != 0:
             gamma = fungis[i].symbiosis_b*fungis[int(fungis[i].symbiosis_index)].number
-        
+            # print('gamma',sigma,gamma)
+      
         fungis[i].number = (fungis[i].Neq-sigma+gamma) / \
             (1 + math.exp(fungis[i].a - (1-sigma /
-                                         fungis[i].Neq+gamma)*extension_gi[i] * fungis[i].t))
+                                         fungis[i].Neq+gamma/fungis[i].Neq)*extension_gi[i] * fungis[i].t))
 
         if fungis[i].number < 0:
             fungis[i].number = 0
@@ -157,7 +158,7 @@ def update_real_number(fungis, m2, threshold):
         fungis[i].number_log.append(fungis[i].number)
         fungis[i].dnumber_log.append(d_number)
 
-    d_num /= len(fungis)
+    # d_num /= len(fungis)
     Q = Q/1000000
     # print('m2, Q',m2, Q)
     m2 = m2 * (1 - Q)

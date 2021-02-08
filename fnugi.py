@@ -8,8 +8,8 @@ import copy
 def draw(extension_rate, number, fnus, decomposition, temperature, Humidity):
     plt.subplot(2, 2, 1)
     plt.xlabel('t/day')
-    plt.ylabel('extension rate')
-    plt.title('The Extension Rate Along With Time')
+    plt.ylabel('extension speed')
+    plt.title('The Extension Speed Along With Time')
     plt.plot(extension_rate)
 
     plt.subplot(2, 2, 2)
@@ -27,8 +27,8 @@ def draw(extension_rate, number, fnus, decomposition, temperature, Humidity):
 
     plt.subplot(2, 2, 4)
     plt.xlabel('t/day')
-    plt.ylabel('acceleration of fungi growth')
-    plt.title('The Acceleration of All fungi Along With Time')
+    plt.ylabel('each extension speed')
+    plt.title('Each Extension Speed of All fungi Along With Time')
     for i in range(len(fnus)):
         plt.plot(fnus[i].dnumber_log)
 
@@ -91,8 +91,8 @@ def record_experment_data(fs, fnus):
     threshold = 400000
 
     # temperature, Humidity = dataset.import_data(fs)
-    temperature = np.random.normal(loc=0, scale=2, size=len(fnus))
-    Humidity = np.random.normal(loc=0.5, scale=0.1, size=len(fnus))
+    temperature = np.random.normal(loc=0, scale=3, size=7000)
+    Humidity = np.random.normal(loc=0.5, scale=0.1, size=7000)
 
     number = []
     decomposition = []
@@ -104,8 +104,8 @@ def record_experment_data(fs, fnus):
     # training
     for i in range(5000):
         # for j in range(len(fnus)):
-        #     fnus[j].T_real = temperature[j]
-        #     fnus[j].W_real = Humidity[j]
+        #     fnus[j].T_real = temperature[i]
+        #     fnus[j].W_real = Humidity[i]
 
         total_number, total_decomposition_rate, m2, d_number, flag, threshold = Q1.update_real_number(
             fnus, m2, threshold)
@@ -123,7 +123,7 @@ def record_experment_data(fs, fnus):
 
 
 # 参数设计
-# size = 70
+# size = 30
 # np.set_printoptions(precision=2)
 # temperature_low = np.random.normal(loc=0, scale=10, size=size)
 # temperature_high = np.random.normal(loc=20, scale=10, size=size)
@@ -234,6 +234,7 @@ temperature_high = np.array([ 24.33 , 25.02 , 36.59 ,  6.57 , 12.67 ,  5.2  ,  6
   71.18 , 25.64 , 31.68  ,45.83,  13.9 ,  18.24,   0.5  , 33.75 , 35.8 ,   0.5,
   13.07 , 17.59 , 21.87 , 58.64 , 18.08 , 26.06 , 28.25 , 13.01 , 26.16 , 29.77,
   16.92 , 47.29 ,  0.5  ,  0.5 ,  15.23 , 17.52 , 18.89 , 10.91 ,  2.05 ,  0.5 ])
+temperature = (temperature_high + temperature_low) / 2
 width_low = np.array([ 0.22,  0.6  , 0.47,  0.51 , 0.42 , 0.31 , 0.61 , 0.47 , 0.26 , 0.17 , 0.15,  0.24,
   0.26 , 0.77 , 0.09 , 0.82,  0.1  , 0.4  , 0.4 ,  0.48 , 0.32 , 0.44,  0.38 , 0.57,
   0.64 , 0.24 , 0.39 , 0.41 , 0.22 , 0.46 , 0.47 , 0.38 , 0.56,  0.2 ,  0.43 , 0.04,
@@ -244,6 +245,7 @@ width_high = np.array([ 0.89 , 1.45 , 1.72 , 1.21 , 1.02 , 0.74 , 1.34 , 1.55 , 
   1.58 , 1.35 , 1.21,  1.21 , 1.13,  1.58 , 1.86,  1.13,  1.59 , 1.34,  1.58 , 0.79,
   1.53 , 1.9  , 0.77 , 1.33 , 1.37 , 2.22,  0.53 , 1.49  ,1.16 , 0.91 , 1.11 , 1.05,
   1.73 , 2.24])
+width = (width_high + width_low) / 2
 extension_rate = np.array([ 0.52 , 0.34 , 0.71,  0.32 , 0.35 , 0.26 , 0.7 ,  0.41 , 0.61 , 0.57,  0.59 , 0.19,
   0.73 , 0.47 , 0.68 , 0.45 , 0.51 , 0.59 , 0.36 , 0.2  , 0.18 , 0.57 , 0.28 , 0.68,
   0.57 , 0.49 , 0.1  , 0.36 , 0.36 , 0.5  , 0.54 , 0.28 , 0.37 , 0.53 , 0.46 , 0.36,
@@ -265,7 +267,7 @@ competition_a =  np.array([ 0.32 , 0.42 , 0.25 , 0.37 , 0.54 , 0.37 , 0.43 , 0.4
   0.52 , 0.42,  0.33 , 0.52,  0.64 , 0.32  ,0.49 , 0.5 ,  0.66 , 0.58 , 0.39 , 0.31,
   0.49 , 0.27 , 0.63,  0.29 , 0.53 , 0.6  , 0.41 , 0.61 , 0.72 , 0.31,  0.5 ,  0.36,
   0.11 , 0.56])
-symbiosis_b =  np.array([ 0.  , 0.2 , 0. ,  0.  , 0.  , 0.  , 0.  , 0.  , 0.  , 0.  , 0.1 , 0.   ,0. ,  0.  , 0.,
+symbiosis_b =  np.array([ 0.  , 0.002 , 0. ,  0.  , 0.  , 0.  , 0.  , 0.  , 0.  , 0.  , 0.001 , 0.   ,0. ,  0.  , 0.,
   0. ,  0. ,  0. ,  0.  , 0.  , 0.  , 0.  , 0.1 , 0. ,  0. ,  0. ,  0. ,  0. ,  0.  , 0.,
   0. ,  0.  , 0. ,  0.  , 0. ,  0.  , 0.   ,0. ,  0. ,  0.   ,0. ,  0.  , 0. ,  0. ,  0.,
   0. ,  0. ,  0.  , 0.,   0. ])
@@ -273,22 +275,6 @@ symbiosis_index =  np.array([  0. , 22. ,  0. ,  0.  , 0.  , 0. ,  0.  , 0. ,  0
    0. ,  0. ,  0.  , 0.  , 0.  , 0. ,  0. ,  1. ,  0.  , 0.   ,0. ,  0.,   0.  , 0. ,  0.,
    0.  , 0.  , 0. ,  0. ,  0.  , 0. ,  0. ,  0.  , 0. ,  0. ,  0.  , 0.  , 0. ,  0.,   0.,
    0.  , 0. ,  0. ,  0.,   0.])
-# parasitic_c =  np.array([ 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0.,  0.,  0.,
-#   0. , 0. , 0. , 0. , 0. , 0. , 0. , 1. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. ,
-#   0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0.])
-# parasitic_index =  np.array([  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. , 0. ,  0. ,  0. ,  0.,
-#    0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. , 28. ,  0. ,  0. ,  0. ,  0.,
-#    0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0.,
-#    0. ,  0. ,  0. ,  0. ,  0.])
-
-# symbiosis_b =  np.array([ 0.  , 0. , 0. ,  0.  , 0.  , 0.  , 0.  , 0.  , 0.  , 0.  , 0. , 0.   ,0. ,  0.  , 0.,
-#   0. ,  0. ,  0. ,  0.  , 0.  , 0.  , 0.  , 0. , 0. ,  0. ,  0. ,  0. ,  0. ,  0.  , 0.,
-#   0. ,  0.  , 0. ,  0.  , 0. ,  0.  , 0.   ,0. ,  0. ,  0.   ,0. ,  0.  , 0. ,  0. ,  0.,
-#   0. ,  0. ,  0.  , 0.,   0. ])
-# symbiosis_index =  np.array([  0. , 0. ,  0. ,  0.  , 0.  , 0. ,  0.  , 0. ,  0. ,  0. ,  0.,   0. ,  0. ,  0.,   0.,
-#    0. ,  0. ,  0.  , 0.  , 0.  , 0. ,  0. ,  0. ,  0.  , 0.   ,0. ,  0.,   0.  , 0. ,  0.,
-#    0.  , 0.  , 0. ,  0. ,  0.  , 0. ,  0. ,  0.  , 0. ,  0. ,  0.  , 0.  , 0. ,  0.,   0.,
-#    0.  , 0. ,  0. ,  0.,   0.])
 parasitic_c =  np.array([ 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0.,  0.,  0.,
   0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. ,
   0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0. , 0.])
@@ -301,6 +287,8 @@ be_parasitic_index =  np.array([  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,
    0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0.,
    0. ,  0. ,  0. ,  0. ,  0.])
 size = 50
+
+
 F = []
 K = 800000
 temperature_now = 5.89
